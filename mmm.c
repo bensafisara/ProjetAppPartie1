@@ -147,7 +147,7 @@ printf("\n\n\n");
 
 
 
-   if((!strcmp(mode, "S")) || (!strcmp(mode, "s"))){                                          
+   if((!strcmp(mode, "P")) || (!strcmp(mode, "p"))){                                          
 
 
 
@@ -204,7 +204,7 @@ printf("\n\n\n");
 
 
 
-  if(((!strcmp(mode, "P")) || (!strcmp(mode, "p")))){
+  if(((!strcmp(mode, "S")) || (!strcmp(mode, "s")))){
 		/**********************************Sequetiel*********************************************/
 		printf("\ncalcul sequentiel \n\n ");
 		printf("\n=========\n" );
