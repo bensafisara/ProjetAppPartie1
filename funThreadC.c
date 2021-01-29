@@ -32,7 +32,7 @@
   for(i=0;i<nbTH1;i++)
     {
       //printf("Démarage du thread %ld\n", i);
-      pthread_create(&thread[i], NULL, funcaoC, (void*)i);
+      pthread_create(&thread[i], NULL, funcaoC, &i);
     }
     
 
@@ -72,8 +72,8 @@
   {
   int   endcol;
   int i,j,x;
-   //int id = *((int *)arg1); 
-  int id = arg1; 
+   int id = *((int *)arg1); 
+  //int id = arg1; 
   //printf("thead number %d\n", id );
   int quantiteDecol = N/NumThr;
   //printf("Taille bloc = %d\n", quantiteDecol);

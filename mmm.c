@@ -1,3 +1,5 @@
+/***************************Include******************************/
+
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,12 +22,7 @@
 
 
 
-
-
-
 /*********************Variable globales******************************/
-//int x,dim1,dim2, N;
-
 
  int **a;
  int  **b;
@@ -36,16 +33,8 @@ int N;
 int NumThr;
 double speedUpArchiRow;
 double speedUpArchiCol;
-
-
-int mode;
-
 int *VecteurNumDesThreads;
-
-
-
 double tempsParalleleArchitectureRow;
-
 double tempsParalleleArchitectureColmun;
 double tempsSequentiel ;
 
@@ -54,52 +43,36 @@ double tempsSequentiel ;
 
 
 
+  char* mode ;
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-int main( int argc, char  *argv[]){
+ int main( int argc, char  *argv[]){
 
 /*vérification*/
 
-if (argc>3)
+ if (argc>3)
   {
+	   mode = argv[1];
 
-
-    N=atoi(argv[1]);
-    NumThr=atoi(argv[2]);
-    mode =atoi(argv[3]);
+	    N=atoi(argv[2]);
+	    
+	    NumThr=atoi(argv[3]);
+	    
     
     
-
-    /********* le mode ********/
-        //0 parallel
-        // 1 sequentiel
-    
-
-     /***************************/
         
   }else
   {
     printf("faute \n");
-    printf("Utiliser : ./multiplic_matrix [dimension des matrix nxn * nxn ] [num thread] [mode de calcul 0 pour parallel 1 pour sequentiel]  \n"); 
+    printf("Utiliser : ./multiplic_matrix  [mode de calcul  pour parallel p pour sequentiel s] [dimension des matrix nxn * nxn ] [num thread]\n"); 
     exit(-1);
   }
 
  if(NumThr > N|| NumThr < 1)
   {
-    printf("Erreur\n");
+    printf("Erreur  : spécifier une Taille Matrice et Nombre Thread correctes(positifs) et nbthread <= Taille Matrice  \n");
     exit(-2);
   }
 
@@ -139,9 +112,6 @@ VecteurNumDesThreads =(int *) malloc(NumThr*sizeof(int));
 /*allocation des matrix*/
 
 
-
-
-
 /** *le vecteur des id***/
 for(int h =0;h<NumThr;h++)
   {
@@ -152,23 +122,14 @@ for(int h =0;h<NumThr;h++)
 
 
 
+  /************creating matrix a and b***********************/
 
-
-/*******************init matrix ************************/
-	
-
-
-
-
-
-                          /************creating matrix a and b***********************/
-
-                          generateRandomMatrix(a,N,1,2);
-                          generateRandomMatrix(b,N,1,2);
+  generateRandomMatrix(a,N,1,2);
+  generateRandomMatrix(b,N,1,2);
 
 
 
-                          /********************************************************/
+ /********************************************************/
                                                     
 
 /*******************diplay matrix a et b ************************/
@@ -186,105 +147,83 @@ printf("\n\n\n");
 
 
 
+   if((!strcmp(mode, "S")) || (!strcmp(mode, "s"))){                                          
+
+
+
+		printf("calcul parallele Architecture 1 ligne\n");
+		printf("\n=========\n" );
+		printf("mode parallel");
+		printf("\nNombre de threads = %d\n", NumThr);
+		printf("size %d",N);
+		printf("\n=========\n" );
+		initialisation(NumThr);
+		sequentiel(N);
+		printf("\nresultat du calcul row\n" );
+		printMatrix(mult_p, N);
+		printf("\nfin calcul parallele Architecture 1 ligne\n\n\n");
+
+
+
+		printf("***************************************" );
+
+		printf("\ncalcul parallele Architecture 2 colonne\n");
+		printf("\n=========\n" );
+		printf("mode parallel");
+		printf("\nNombre de threads = %d\n", NumThr);
+		printf("size %d",N);
+		printf("\n=========\n" );
+		initialisationC(NumThr);
+		sequentiel(N);
+
+		printf("\nresultat du calcul col\n" );
+		printMatrix(mult_p1, N);
+		printf("\nfin calcul parallele Architecture 2 colonne\n\n\n");
+
+
+  /****SpeedUp*****/
+	printf("\n\n" );
+	speedUpArchiRow=tempsSequentiel/tempsParalleleArchitectureRow;
+	printf("speedUp entre sequentiel et architecture ligne : %f\n",speedUpArchiRow );
+
+	speedUpArchiCol=tempsSequentiel/tempsParalleleArchitectureColmun;
+	printf("speedUp entre sequentiel et architecture colonne : %f\n",speedUpArchiCol );
 
 
 
 
+  /*****VerificationMatrix***********/
+	printf("\nverification egalité entre matrice Para archi Row et matrice Seq\n" );
+	VerifEquality(mult_p,mult_s,N);
 
+	printf("\nverification egalité entre matrice Para archi col et matrice Seq\n" );
 
-
-
-   if(mode==0){                                          
-
-
-
-printf("calcul parallele Architecture 1 ligne\n");
-printf("\n=========\n" );
-printf("mode parallel");
-printf("\nNombre de threads = %d\n", NumThr);
-printf("size %d",N);
-printf("\n=========\n" );
-initialisation(NumThr);
-sequentiel(N);
-printf("\nresultat du calcul row\n" );
-printMatrix(mult_p, N);
-printf("\nfin calcul parallele Architecture 1 ligne\n\n\n");
-
-
-
-printf("***************************************" );
-
-
-
-printf("\ncalcul parallele Architecture 2 colonne\n");
-printf("\n=========\n" );
-printf("mode parallel");
-printf("\nNombre de threads = %d\n", NumThr);
-printf("size %d",N);
-printf("\n=========\n" );
-initialisationC(NumThr);
-sequentiel(N);
-
-
-
-
-
-
-printf("\nresultat du calcul col\n" );
-printMatrix(mult_p1, N);
-printf("\nfin calcul parallele Architecture 2 colonne\n\n\n");
-
-
-
-
-
-
-/****SpeedUp*****/
-printf("\n\n" );
-speedUpArchiRow=tempsSequentiel/tempsParalleleArchitectureRow;
-printf("speedUp entre sequentiel et architecture ligne : %f\n",speedUpArchiRow );
-
-speedUpArchiCol=tempsSequentiel/tempsParalleleArchitectureColmun;
-printf("speedUp entre sequentiel et architecture colonne : %f\n",speedUpArchiCol );
-
-
-
-
-/*****VerificationMatrix***********/
-printf("\nverification egalité entre matrice Para archi Row et matrice Seq\n" );
-VerifEquality(mult_p,mult_s,N);
-
-printf("\nverification egalité entre matrice Para archi col et matrice Seq\n" );
-
-VerifEquality(mult_p1,mult_s,N);
+	VerifEquality(mult_p1,mult_s,N);
 
 }else{
 
 
 
+  if(((!strcmp(mode, "P")) || (!strcmp(mode, "p")))){
+		/**********************************Sequetiel*********************************************/
+		printf("\ncalcul sequentiel \n\n ");
+		printf("\n=========\n" );
+		printf("mode: sequentiel\n" );
+		printf("thread count : 1\n" );
+		printf("size %d",N );
+		printf("\n=========\n" );
+		sequentiel(N);
+		printf("resultat du calcul sequentiel\n");
+
+		printMatrix(mult_s, N);
 
 
-
-if(mode==1){
-/**********************************Sequetiel*********************************************/
-printf("\ncalcul sequentiel \n\n ");
-printf("\n=========\n" );
-printf("mode: sequentiel\n" );
-printf("thread count : 1\n" );
-printf("size %d",N );
-printf("\n=========\n" );
-sequentiel(N);
-printf("resultat du calcul sequentiel\n");
-
-printMatrix(mult_s, N);
-
-
-/*******************************************************************************/
+		/*******************************************************************************/
 
 
 
 }else{
-printf("Specifier le mode sequentiel avec : s\t Specifier le mode parallel avec : p \n");
+printf("Specifier le mode sequentiel avec : s/S\t Specifier le mode parallel avec : p/P \n");
 
 
 }
@@ -292,52 +231,6 @@ printf("Specifier le mode sequentiel avec : s\t Specifier le mode parallel avec 
 
 
 }
-
-       
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 for(i=0;i<N;i++)
   {
@@ -352,11 +245,6 @@ for(i=0;i<N;i++)
     free(mult_s[i]);
     free(mult_p[i]);
     free(mult_p1[i]);
-
-
-
-
-
 
 
 
